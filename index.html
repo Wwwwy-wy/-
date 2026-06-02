@@ -271,6 +271,14 @@
                     </div>
                 </section>
 
+                <!-- 项目图片展示 -->
+                <section class="case-section">
+                    <h2 class="case-section-title">项目展示</h2>
+                    <div class="case-gallery" id="modal-gallery">
+                        <!-- 图片会通过JavaScript动态渲染 -->
+                    </div>
+                </section>
+
                 <!-- 2. 设计挑战 -->
                 <section class="case-section">
                     <h2 class="case-section-title">设计挑战</h2>
@@ -456,6 +464,17 @@
                     </div>
                 </section>
             </div>
+        </div>
+    </div>
+
+    <!-- 图片预览模态框 -->
+    <div id="image-modal" class="image-modal">
+        <div class="image-modal-content">
+            <button class="image-modal-close" aria-label="关闭">×</button>
+            <button class="image-modal-nav image-modal-prev" aria-label="上一张">←</button>
+            <img id="image-modal-img" class="image-modal-img" src="" alt="">
+            <button class="image-modal-nav image-modal-next" aria-label="下一张">→</button>
+            <div class="image-modal-indicator" id="image-modal-indicator">1 / 4</div>
         </div>
     </div>
 

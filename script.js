@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initModal();
   initSmoothScroll();
   initScrollAnimations();
+  initImageModal();
   
   // Fix logo click
   const logo = document.querySelector('.logo');
@@ -109,6 +110,12 @@ function initModal() {
       subtitle: '重新定义团队协作方式',
       year: '2024',
       heroClass: 'placeholder-saas',
+      gallery: [
+        { id: 1, caption: '首页仪表盘设计', color: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%)' },
+        { id: 2, caption: '任务管理界面', color: 'linear-gradient(135deg, #2d5a87 0%, #3d7ab5 100%)' },
+        { id: 3, caption: '团队协作模块', color: 'linear-gradient(135deg, #1e3a5f 0%, #3d7ab5 100%)' },
+        { id: 4, caption: '数据分析看板', color: 'linear-gradient(135deg, #2d5a87 0%, #1e3a5f 100%)' }
+      ],
       overview: {
         client: 'Flowly Inc.',
         duration: '4 个月',
@@ -160,6 +167,12 @@ function initModal() {
       subtitle: '构建统一的设计语言',
       year: '2023',
       heroClass: 'placeholder-system',
+      gallery: [
+        { id: 1, caption: '设计原子组件', color: 'linear-gradient(135deg, #3d2458 0%, #5d3a82 100%)' },
+        { id: 2, caption: '色彩系统规范', color: 'linear-gradient(135deg, #5d3a82 0%, #7d50ac 100%)' },
+        { id: 3, caption: '按钮组件库', color: 'linear-gradient(135deg, #3d2458 0%, #7d50ac 100%)' },
+        { id: 4, caption: '文档网站设计', color: 'linear-gradient(135deg, #5d3a82 0%, #3d2458 100%)' }
+      ],
       overview: {
         client: 'Orbit Tech',
         duration: '3 个月',
@@ -211,6 +224,12 @@ function initModal() {
       subtitle: '连接全球开发者',
       year: '2024',
       heroClass: 'placeholder-web',
+      gallery: [
+        { id: 1, caption: '社区首页设计', color: 'linear-gradient(135deg, #1e4a4d 0%, #2a6a6d 100%)' },
+        { id: 2, caption: '文章详情页', color: 'linear-gradient(135deg, #2a6a6d 0%, #3a8a8d 100%)' },
+        { id: 3, caption: '个人资料页面', color: 'linear-gradient(135deg, #1e4a4d 0%, #3a8a8d 100%)' },
+        { id: 4, caption: '代码编辑器预览', color: 'linear-gradient(135deg, #2a6a6d 0%, #1e4a4d 100%)' }
+      ],
       overview: {
         client: 'Nexus Dev',
         duration: '5 个月',
@@ -325,6 +344,17 @@ function initModal() {
       </div>
     `).join('');
   }
+
+  function renderGallery(gallery, projectId) {
+    return gallery.map((item, index) => `
+      <div class="gallery-item" data-gallery-index="${index}" data-project="${projectId}">
+        <div class="gallery-item-placeholder" style="background: ${item.color}"></div>
+        <div class="gallery-overlay">
+          <div class="gallery-caption">${item.caption}</div>
+        </div>
+      </div>
+    `).join('');
+  }
   
   function openModal(projectId) {
     const caseStudy = caseStudies[projectId] || caseStudies.flowly;
@@ -365,6 +395,19 @@ function initModal() {
     
     // Update learnings
     document.getElementById('modal-learnings').innerHTML = renderLearnings(caseStudy.learnings);
+    
+    // Update gallery
+    document.getElementById('modal-gallery').innerHTML = renderGallery(caseStudy.gallery, projectId);
+    
+    // Bind gallery click events
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.addEventListener('click', () => {
+        openImageModal(
+          item.dataset.project,
+          parseInt(item.dataset.galleryIndex)
+        );
+      });
+    });
     
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -486,3 +529,84 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('mousedown', () => {
   document.body.classList.remove('keyboard-nav');
 });
+
+// Image Preview Modal
+let currentGallery = [];
+let currentIndex = 0;
+
+function initImageModal() {
+  const imageModal = document.getElementById('image-modal');
+  const closeBtn = imageModal.querySelector('.image-modal-close');
+  const prevBtn = imageModal.querySelector('.image-modal-prev');
+  const nextBtn = imageModal.querySelector('.image-modal-next');
+  
+  closeBtn.addEventListener('click', closeImageModal);
+  imageModal.addEventListener('click', (e) => {
+    if (e.target === imageModal) closeImageModal();
+  });
+  prevBtn.addEventListener('click', () => navigateImage(-1));
+  nextBtn.addEventListener('click', () => navigateImage(1));
+  
+  document.addEventListener('keydown', (e) => {
+    if (imageModal.classList.contains('active')) {
+      if (e.key === 'Escape') closeImageModal();
+      if (e.key === 'ArrowLeft') navigateImage(-1);
+      if (e.key === 'ArrowRight') navigateImage(1);
+    }
+  });
+}
+
+function openImageModal(projectId, index) {
+  const caseStudy = caseStudies[projectId] || caseStudies.flowly;
+  currentGallery = caseStudy.gallery;
+  currentIndex = index;
+  updateImageModal();
+  document.getElementById('image-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+  document.getElementById('image-modal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function navigateImage(direction) {
+  currentIndex = (currentIndex + direction + currentGallery.length) % currentGallery.length;
+  updateImageModal();
+}
+
+function updateImageModal() {
+  const item = currentGallery[currentIndex];
+  const imgEl = document.getElementById('image-modal-img');
+  const indicatorEl = document.getElementById('image-modal-indicator');
+  
+  // Create a placeholder image since we don't have real images
+  imgEl.style.display = 'none';
+  indicatorEl.textContent = `${currentIndex + 1} / ${currentGallery.length}`;
+  
+  // Add a visual placeholder
+  let content = document.querySelector('.image-modal-content');
+  let existingPlaceholder = content.querySelector('.image-modal-placeholder');
+  if (!existingPlaceholder) {
+    existingPlaceholder = document.createElement('div');
+    existingPlaceholder.className = 'image-modal-placeholder';
+    content.insertBefore(existingPlaceholder, content.firstChild.nextSibling);
+  }
+  
+  existingPlaceholder.style.cssText = `
+    width: 100%;
+    max-width: 900px;
+    aspect-ratio: 16 / 10;
+    background: ${item.color};
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    text-align: center;
+    padding: var(--spacing-xl);
+  `;
+  existingPlaceholder.textContent = item.caption;
+}
