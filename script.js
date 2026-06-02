@@ -423,6 +423,11 @@ function initModal() {
     
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    
+    // 滚动到模态框顶部
+    setTimeout(() => {
+      document.querySelector('.modal-content').scrollTop = 0;
+    }, 100);
   }
   
   function closeModal() {
