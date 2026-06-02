@@ -348,9 +348,21 @@ function initModal() {
   function renderGallery(gallery, projectId) {
     return gallery.map((item, index) => `
       <div class="gallery-item" data-gallery-index="${index}" data-project="${projectId}">
-        <div class="gallery-item-placeholder" style="background: ${item.color}"></div>
+        <div class="gallery-item-placeholder" style="background: ${item.color}">
+          <div class="gallery-item-placeholder-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+            </svg>
+          </div>
+          <span>${item.caption}</span>
+        </div>
         <div class="gallery-overlay">
           <div class="gallery-caption">${item.caption}</div>
+        </div>
+        <div class="gallery-zoom-indicator">
+          <svg class="gallery-zoom-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+          </svg>
         </div>
       </div>
     `).join('');
@@ -580,11 +592,11 @@ function updateImageModal() {
   const imgEl = document.getElementById('image-modal-img');
   const indicatorEl = document.getElementById('image-modal-indicator');
   
-  // Create a placeholder image since we don't have real images
+  // Hide img element since we don't have real images
   imgEl.style.display = 'none';
   indicatorEl.textContent = `${currentIndex + 1} / ${currentGallery.length}`;
   
-  // Add a visual placeholder
+  // Add a visual placeholder with smooth transition
   let content = document.querySelector('.image-modal-content');
   let existingPlaceholder = content.querySelector('.image-modal-placeholder');
   if (!existingPlaceholder) {
@@ -593,20 +605,53 @@ function updateImageModal() {
     content.insertBefore(existingPlaceholder, content.firstChild.nextSibling);
   }
   
-  existingPlaceholder.style.cssText = `
-    width: 100%;
-    max-width: 900px;
-    aspect-ratio: 16 / 10;
-    background: ${item.color};
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    text-align: center;
-    padding: var(--spacing-xl);
-  `;
-  existingPlaceholder.textContent = item.caption;
+  // Add exit animation before updating
+  existingPlaceholder.style.opacity = '0';
+  existingPlaceholder.style.transform = 'scale(0.95)';
+  
+  setTimeout(() => {
+    existingPlaceholder.style.cssText = `
+      width: 100%;
+      max-width: 900px;
+      aspect-ratio: 16 / 10;
+      background: ${item.color};
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      text-align: center;
+      padding: var(--spacing-xl);
+      opacity: 1;
+      transform: scale(1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    `;
+    existingPlaceholder.innerHTML = `
+      <div style="text-align: center;">
+        <div style="width: 80px; height: 80px; border: 3px solid rgba(255,255,255,0.4); border-radius: 50%; margin: 0 auto ${item.spacing-xl}; display: flex; align-items: center; justify-content: center;">
+          <svg style="width: 32px; height: 32px; fill: rgba(255,255,255,0.8);" viewBox="0 0 24 24">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+          </svg>
+        </div>
+        <div>${item.caption}</div>
+      </div>
+    `;
+  }, 200);
+  
+  // Update or create caption
+  let captionEl = content.querySelector('.image-modal-caption');
+  if (!captionEl) {
+    captionEl = document.createElement('div');
+    captionEl.className = 'image-modal-caption';
+    content.appendChild(captionEl);
+  }
+  captionEl.textContent = item.caption;
+  
+  // Refresh animations for new content
+  captionEl.style.animation = 'none';
+  void captionEl.offsetWidth;
+  captionEl.style.animation = 'captionFadeInModal 0.3s ease 0.3s forwards';
 }
