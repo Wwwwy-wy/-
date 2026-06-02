@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initScrollAnimations();
   initImageModal();
+  initScrollAnimationObserver();
+  initParallaxEffect();
   
   // Fix logo click
   const logo = document.querySelector('.logo');
@@ -659,4 +661,54 @@ function updateImageModal() {
   captionEl.style.animation = 'none';
   void captionEl.offsetWidth;
   captionEl.style.animation = 'captionFadeInModal 0.3s ease 0.3s forwards';
+}
+
+// 滚动动画观察器
+function initScrollAnimationObserver() {
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px 0px -10% 0px',
+    threshold: 0.1
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, observerOptions);
+
+  // 观察所有带有 scroll-animate 类的元素
+  document.querySelectorAll('.scroll-animate').forEach(el => {
+    observer.observe(el);
+  });
+}
+
+// 视差效果
+function initParallaxEffect() {
+  let ticking = false;
+  
+  const updateParallax = () => {
+    const scrollY = window.scrollY;
+    document.documentElement.style.setProperty('--scroll-y', scrollY * 0.01);
+    ticking = false;
+  };
+  
+  const requestTick = () => {
+    if (!ticking) {
+      window.requestAnimationFrame(updateParallax);
+      ticking = true;
+    }
+  };
+  
+  window.addEventListener('scroll', requestTick);
+  
+  // 添加鼠标跟随效果
+  document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 10;
+    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+    document.documentElement.style.setProperty('--mouse-x', `${x}px`);
+    document.documentElement.style.setProperty('--mouse-y', `${y}px`);
+  });
 }
